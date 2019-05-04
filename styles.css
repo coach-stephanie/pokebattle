@@ -59,8 +59,8 @@ h2 {
 #start {
 	display: none;
 	flex-direction: column;
-	margin-right:250px;
-	margin-left: 250px;
+	margin-right:150px;
+	margin-left: 150px;
 	border: 10px solid white;
 }
 
