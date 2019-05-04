@@ -1,23 +1,10 @@
 $(document).ready(function(){
 	let poke1, poke2, container; 
 	let offset= Math.floor(Math.random()*800);
-	
-	let playAgain = localStorage.getItem("playAgain");
-	if(playAgain) {
-		enterGame();
-	}
 
 	$('#enter').click(enterGame);
 
-	$('#getPoke1').click(function () {
-		getPokemon('#first');
-	});
-
-	$('#getPoke2').click(function () {
-		getPokemon('#second');
-	});
-
-	$('#battle').click(function () {
+	$('#center').click(function () {
 		if(poke1 && poke2) {
 			battle();
 		}
@@ -27,18 +14,23 @@ $(document).ready(function(){
 		
 	});
 
-	$('#play-again').click(function() {
-		localStorage.setItem("playAgain", true);
-		location.reload();
-	});
+	addEventHandlers();
 
 	function enterGame() {
 		$('#welcome').hide();
+		$('#arena').fadeOut();
+		$('h1').hide();
+		$('#start').fadeIn();
+		$('h1').css('font-size', '48px');
+		$('h1').css('text-shadow','1px 5px rgb(85,85,82)')
+		$('h1').fadeIn();
 		$('#start').css('display', 'flex');
-	}
+		$('body').css('background-image', 'linear-gradient(to bottom right, #e69846, #f7d569), url(images/texture.png)');
+		$('body').css('background-blend-mode', 'overlay');
+		$('body').css('justify-content', 'flex-start');
+	}	
 
 	function getPokemon(div) {
-		//let pokemon;
 		container = div; 
 		console.log("In function");
 		$.get( `https://pokeapi.co/api/v2/pokemon/?limit=1&offset=${offset}`, function( data ) {
@@ -58,7 +50,6 @@ $(document).ready(function(){
 			hp: 0
 		};
 		$.get( `https://pokeapi.co/api/v2/pokemon/${data.results[0].name}`, function( pokeData ) {
-		  console.log(pokeData);
 		  pokemon.name = capitalize(pokeData.species.name);
 		  pokemon.frontImg = pokeData.sprites.front_default;
 		  pokemon.backImg = pokeData.sprites.back_default;
@@ -79,25 +70,28 @@ $(document).ready(function(){
 	}
 
 	function displayPokemon(pokemon) {
-		$(`${container}q`).hide();
-		$(container).prepend(`<h1>${pokemon.name}</h1>
-			<img class="poke-img" src="${pokemon.frontImg}" alt="${pokemon.name} image">
-			<h3>Stats</h3>
-			<ul>
-				<li>Speed: ${pokemon.speed}</li>
-				<li>Attack: ${pokemon.attack}</li>
-				<li>Defense: ${pokemon.defense}</li>
-			</ul>`
+		$(container).prepend(`<img class="poke-img" src="${pokemon.frontImg}" alt="${pokemon.name} image">
+			<div class="pokemon-stats">
+				<h2>${pokemon.name}</h2>
+				<p>Speed: <span class="red">${pokemon.speed}</span></p>
+				<p>Attack: <span class="red">${pokemon.attack}</span></p>
+				<p>Defense: <span class="red">${pokemon.defense}</span></p>
+				
+			</div>`
 		);
+		if(poke1 && poke2) {
+			$('#center').css('animation', 'pulse 1s linear infinite');
+		}
 	}
 
 	function battle() {
-		console.log("battle!");
-		$('#start').hide();
+		$('#first').hide();
+		$('#second').hide();
+		$('#center').hide();
 		$('#result').css('display', 'flex');
 		let winner = calculateWinner();
-		$('#result').prepend(`<h1>Winner!</h1><h1>${winner.name}</h1>
-			<img class="poke-img" src="${winner.frontImg}" alt="${winner.name} image">
+		$('#result').prepend(`<h2 style="color:red;">${winner.name} is the winner!</h1>
+			<img class="poke-img-win" src="${winner.frontImg}" alt="${winner.name} image">
 		`);
 	}
 
@@ -115,4 +109,49 @@ $(document).ready(function(){
 	function capitalize(string) {
 	    return string.charAt(0).toUpperCase() + string.slice(1);
 	}
+
+	function enterGameFast() {
+		$('#welcome').hide();
+		$('#arena').hide();
+		$('h1').hide();
+		$('#start').show();
+		$('h1').css('font-size', '48px');
+		$('h1').css('text-shadow','1px 5px rgb(85,85,82)')
+		$('h1').show();
+		$('#start').css('display', 'flex');
+		$('body').css('background-image', 'linear-gradient(to bottom right, #e69846, #f7d569), url(images/texture.png)');
+		$('body').css('background-blend-mode', 'overlay');
+		$('body').css('justify-content', 'flex-start');
+	}
+
+	function addEventHandlers() {
+		$('#getPoke1').click(function () {
+			$('#getPoke1').fadeOut();
+			getPokemon('#first');
+		});
+
+		$('#getPoke2').click(function () {
+			$('#getPoke2').fadeOut();
+			getPokemon('#second');
+		});
+
+		$('#play-again').click(function() {
+
+			$('#result').empty();
+			$('#result').append('<button class="poke-btn" id="play-again">Play Again</button>');
+			$('#result').hide();
+			$('#center').css('animation', 'none');
+			poke1 = undefined;
+			poke2 = undefined;
+			$('#first').empty();
+			$('#first').append('<button class="poke-btn" id="getPoke1">Get Pokemon!</button>');
+			$('#second').empty();
+			$('#second').append('<button class="poke-btn" id="getPoke2">Get Pokemon!</button>')
+			$('#first').show();
+			$('#second').show();
+			$('#center').show();
+			addEventHandlers();
+
+		});
+	}	
 })
